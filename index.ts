@@ -80,12 +80,8 @@ class HttpClient {
     }   
 
     _fetch(url: string, options?: FetchOptions | null) {
-      return this._getDataNative(url);
-    }
-
-    _getDataNative(url: string) {
       this.logger.info("fetching(native): " + url);
-      return fetch(url).then(
+      return fetch(url, options ?? {method: 'GET'}).then(
         (response) => {
           return response.json()
         }
