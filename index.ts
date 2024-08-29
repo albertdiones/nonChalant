@@ -41,7 +41,7 @@ class HttpClient {
     getNoCache(url: string): Promise<object> {
       const delay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
-      return this._fetchWithDelay(url, {randomDelay: delay});
+      return this._getWithDelay(url, {randomDelay: delay});
     }
 
     post(url: string, fetchOptions?: FetchOptions ): Promise<object> {
@@ -50,35 +50,39 @@ class HttpClient {
       return this._fetchWithDelay(url, { fetchOptions: fetchOptions ?? null, randomDelay: delay });
     }
 
-    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
-
-      const {randomDelay, fetchOptions} = options;
-
+    _getWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
       if (!this.currentFetches[url]) {
-        const minDateForNextFetch = Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now());
-        const nextFetch = this.lastFetchSchedule = minDateForNextFetch + randomDelay;
-        const timeDiff = nextFetch-Date.now();
-        const delayBeforeFetch = Math.max(timeDiff,0);
-
-        this.logger.info(`Fetching ${url} (delay: ${delayBeforeFetch}`);
-
-        this.currentFetches[url] = (
-          delayBeforeFetch <= 0
-          ? this._fetch(url, fetchOptions) 
-          : Bun.sleep(delayBeforeFetch).then(
-              () => this._fetch(url, fetchOptions)
-          )
-        ).catch(
-          (e: Error) => {
-            this.logger.warn(`Error occurred trying to access ${url} : ${e}`)
-          }
-        ).finally(
+        this._fetchWithDelay(url, options)
+        .finally(
           () => {
             delete this.currentFetches[url]; // Use delete to remove the entry
           }
         );
       }
       return this.currentFetches[url];
+    }   
+
+    
+    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
+      const {randomDelay, fetchOptions} = options;
+      const minDateForNextFetch = Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now());
+      const nextFetch = this.lastFetchSchedule = minDateForNextFetch + randomDelay;
+      const timeDiff = nextFetch-Date.now();
+      const delayBeforeFetch = Math.max(timeDiff,0);
+
+      this.logger.info(`Fetching ${url} (delay: ${delayBeforeFetch}`);
+
+      return (
+        delayBeforeFetch <= 0
+        ? this._fetch(url, fetchOptions) 
+        : Bun.sleep(delayBeforeFetch).then(
+            () => this._fetch(url, fetchOptions)
+        )
+      ).catch(
+        (e: Error) => {
+          this.logger.warn(`Error occurred trying to access ${url} : ${e}`)
+        }
+      )
     }   
 
     _fetch(url: string, options?: FetchOptions | null) {
