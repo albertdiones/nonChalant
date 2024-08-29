@@ -3,6 +3,8 @@ export interface ResponseDataWithCache {
   fromCache: boolean
 }
 
+interface FetchOptions {method: string, headers?:object, body?: string}
+
 
 class HttpClient {
     logger;
@@ -39,10 +41,19 @@ class HttpClient {
     getNoCache(url: string): Promise<object> {
       const delay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
-      return this._fetchWithDelay(url, delay);
+      return this._fetchWithDelay(url, {randomDelay: delay});
     }
 
-    _fetchWithDelay(url: string, randomDelay: number) {
+    post(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+      const delay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
+
+      return this._fetchWithDelay(url, { fetchOptions: fetchOptions ?? null, randomDelay: delay });
+    }
+
+    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
+
+      const {randomDelay, fetchOptions} = options;
+
       if (!this.currentFetches[url]) {
         const minDateForNextFetch = Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now());
         const nextFetch = this.lastFetchSchedule = minDateForNextFetch + randomDelay;
@@ -53,7 +64,7 @@ class HttpClient {
 
         this.currentFetches[url] = (
           delayBeforeFetch <= 0
-          ? this._fetch(url) 
+          ? this._fetch(url, fetchOptions) 
           : Bun.sleep(delayBeforeFetch).then(() => this._fetch(url))
         ).catch(
           (e: Error) => {
@@ -68,7 +79,7 @@ class HttpClient {
       return this.currentFetches[url];
     }   
 
-    _fetch(url: string) {
+    _fetch(url: string, options?: FetchOptions | null) {
       return this._getDataNative(url);
     }
 
