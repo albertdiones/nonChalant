@@ -65,7 +65,9 @@ class HttpClient {
         this.currentFetches[url] = (
           delayBeforeFetch <= 0
           ? this._fetch(url, fetchOptions) 
-          : Bun.sleep(delayBeforeFetch).then(() => this._fetch(url))
+          : Bun.sleep(delayBeforeFetch).then(
+              () => this._fetch(url, fetchOptions)
+          )
         ).catch(
           (e: Error) => {
             this.logger.warn(`Error occurred trying to access ${url} : ${e}`)
