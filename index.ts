@@ -52,12 +52,12 @@ class HttpClient {
 
     _getWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
       if (!this.currentFetches[url]) {
-        this._fetchWithDelay(url, options)
-        .finally(
-          () => {
-            delete this.currentFetches[url]; // Use delete to remove the entry
-          }
-        );
+        this.currentFetches[url] = this._fetchWithDelay(url, options)
+          .finally(
+            () => {
+              delete this.currentFetches[url]; // Use delete to remove the entry
+            }
+          );
       }
       return this.currentFetches[url];
     }   
