@@ -44,7 +44,43 @@ class HttpClient {
       return this._getWithDelay(url, {randomDelay: delay});
     }
 
+    
+    
+
+    get(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+      return this.fetch(
+        url,
+        {...fetchOptions, method: 'GET'}
+      );
+    }
+
     post(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+      return this.fetch(
+        url,
+        {...fetchOptions, method: 'POST'}
+      );
+    }
+
+    
+
+    patch(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+      return this.fetch(
+        url,
+        {...fetchOptions, method: 'PATCH'}
+      );
+    }
+
+    delete(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+      return this.fetch(
+        url,
+        {...fetchOptions, method: 'DELETE'}
+      );
+    }
+
+    async fetch(
+      url,
+      fetchOptions: FetchOptions
+    ): Promise<any> {
       const delay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
       return this._fetchWithDelay(url, { fetchOptions: fetchOptions ?? null, randomDelay: delay });

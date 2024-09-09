@@ -2,6 +2,7 @@ nonChallant HTTP Client
 
 
 for fetches that never throttles
+(alternative for fetch())
 
 2 unique features:
 1. minTimeoutPerRequest - minimum delay for each requests initiated using the client
@@ -16,3 +17,8 @@ new HttpClient({
         maxRandomPreRequestTimeout: 0,
     })
 ```
+
+
+Todos:
+ * [x] support POST method
+ * [x] support other http methods (PATCH,DELETE)
