@@ -1,6 +1,3 @@
-import { LoggerInterface } from 'add_logger';
-import CacheViaRedis from 'cache-via-redis';
-
 export interface ResponseDataWithCache {
   response: {[key: string]: any},
   fromCache: boolean
@@ -8,55 +5,32 @@ export interface ResponseDataWithCache {
 
 interface FetchOptions {method: string, headers?:object, body?: string}
 
-interface CacheAdapterInterface {
-  getItem(key: string): Promise<string | null>;
-
-  setItem(
-      key: string, 
-      value: string,
-      expirationSeconds: number
-  ): void;
-}
-
 
 class HttpClient {
-    logger: LoggerInterface | null;
-    cache: CacheAdapterInterface | null;
+    logger;
+    cache;
     maxRandomPreRequestTimeout: number = 0;
     minTimeoutPerRequest: number = 0;
     currentFetches: {[url: string]: Promise<any>} = {};
     lastFetchSchedule: number;
 
-    getCache: (url) => Promise<string | null> | undefined;
-
-    constructor(
-      options:{
-        logger?: LoggerInterface,
-        cache?: CacheAdapterInterface,
-        minTimeoutPerRequest?: number, 
-        maxRandomPreRequestTimeout?: number
-      } = {}
-    ) {
-        this.logger = options?.logger ?? null;
-        this.cache = options?.cache ?? null;
-        this.maxRandomPreRequestTimeout = options.maxRandomPreRequestTimeout ?? 0;
-        this.minTimeoutPerRequest = options.minTimeoutPerRequest ?? 0;
+    constructor({logger, cache, minTimeoutPerRequest, maxRandomPreRequestTimeout }) {
+        this.logger = logger;
+        this.cache = cache;
+        this.maxRandomPreRequestTimeout = maxRandomPreRequestTimeout ?? 0;
+        this.minTimeoutPerRequest = parseInt(minTimeoutPerRequest) ?? 0;
         this.lastFetchSchedule = Date.now();
-        this.getCache = 
-          this.cache 
-          ? (url) => this.cache?.getItem(url)
-          : (url) => Promise.resolve(null);;
     }
 
 
     getWithCache(url: string): Promise<ResponseDataWithCache> {
-        return this.getCache(url).then(
+        return this.cache.getItem(url).then(
           (cache: any) => {
             if (!cache) {
               return this.getNoCache(url).then((response) => ({response, fromCache: false}));
             }
             else {
-              this.logger?.info("found from cache: " + url);
+              this.logger.info("found from cache: " + url);
               return Promise.resolve({response: JSON.parse(cache), fromCache: true});
             }
           }
@@ -132,7 +106,7 @@ class HttpClient {
       const timeDiff = nextFetch-Date.now();
       const delayBeforeFetch = Math.max(timeDiff,0);
 
-      this.logger?.info(`Fetching ${url} (delay: ${delayBeforeFetch}`);
+      this.logger.info(`Fetching ${url} (delay: ${delayBeforeFetch}`);
 
       return (
         delayBeforeFetch <= 0
@@ -142,13 +116,13 @@ class HttpClient {
         )
       ).catch(
         (e: Error) => {
-          this.logger?.warn(`Error occurred trying to access ${url} : ${e}`)
+          this.logger.warn(`Error occurred trying to access ${url} : ${e}`)
         }
       )
     }   
 
     _fetch(url: string, options?: FetchOptions | null) {
-      this.logger?.info("fetching(native): " + url);
+      this.logger.info("fetching(native): " + url);
       return fetch(url, options ?? {method: 'GET'}).then(
         (response) => {
           return response.json()
