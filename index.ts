@@ -126,7 +126,7 @@ class HttpClient {
       const timeDiff = nextFetch-Date.now();
       const delayBeforeFetch = Math.max(timeDiff,0);
 
-      this.logger?.info(`Fetching ${url} (delay: ${delayBeforeFetch}`);
+      this.logger?.info(`Fetching ${url} (delay: ${delayBeforeFetch})`);
 
       return (
         delayBeforeFetch <= 0
