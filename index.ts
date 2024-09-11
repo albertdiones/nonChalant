@@ -119,36 +119,25 @@ class HttpClient {
     }   
 
     
-    _fetchWithDelay(
-      url: string, 
-      options: {
-        fetchOptions?: FetchOptions | null,
-        randomDelay: number
-      }
-    ) {
+    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
+      const {randomDelay, fetchOptions} = options;
+      
+      const minDateForNextFetch = 
+        this.lastFetchSchedule 
+        ? Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now())
+        : Date.now();
 
-      const soonestTime = this.lastFetchSchedule ?? Date.now();
-
-      const currentTimestamp = Date.now();
-
-      const minimumDelay = Math.max(soonestTime-currentTimestamp,0)
-
-      let delayBeforeFetch = minimumDelay + this.minTimeoutPerRequest + options.randomDelay;
-      if (this.lastFetchSchedule === null) {
-        delayBeforeFetch = 0;
-      }
-
-      this.lastFetchSchedule = 
-        soonestTime
-        + delayBeforeFetch;
+      const nextFetch = this.lastFetchSchedule = minDateForNextFetch + randomDelay;
+      const timeDiff = nextFetch-Date.now();
+      const delayBeforeFetch = Math.max(timeDiff,0);
 
       this.logger?.info(`Fetching ${url} (delay: ${delayBeforeFetch})`);
 
       return (
         delayBeforeFetch <= 0
-        ? this._fetch(url, options.fetchOptions) 
+        ? this._fetch(url, fetchOptions) 
         : Bun.sleep(delayBeforeFetch).then(
-            () => this._fetch(url, options.fetchOptions)
+            () => this._fetch(url, fetchOptions)
         )
       ).catch(
         (e: Error) => {
