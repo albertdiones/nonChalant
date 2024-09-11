@@ -57,5 +57,10 @@ test(
             timeElapsed
         ).toBeGreaterThanOrEqual(1600);
 
+        
+        expect(
+            timeElapsed
+        ).toBeLessThanOrEqual(1700);
+
     }
 )

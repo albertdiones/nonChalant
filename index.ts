@@ -25,7 +25,7 @@ class HttpClient {
     maxRandomPreRequestTimeout: number = 0;
     minTimeoutPerRequest: number = 0;
     currentFetches: {[url: string]: Promise<any>} = {};
-    lastFetchSchedule: number;
+    lastFetchSchedule: number | null;
 
     constructor(
       options:{
@@ -39,7 +39,7 @@ class HttpClient {
         this.logger = options?.logger ?? null;        
         this.maxRandomPreRequestTimeout = options.maxRandomPreRequestTimeout ?? 0;
         this.minTimeoutPerRequest = options.minTimeoutPerRequest ?? 0;
-        this.lastFetchSchedule = Date.now();
+        this.lastFetchSchedule = null;
     }
 
 
@@ -121,7 +121,12 @@ class HttpClient {
     
     _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
       const {randomDelay, fetchOptions} = options;
-      const minDateForNextFetch = Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now());
+      
+      const minDateForNextFetch = 
+        this.lastFetchSchedule 
+        ? Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now())
+        : Date.now();
+
       const nextFetch = this.lastFetchSchedule = minDateForNextFetch + randomDelay;
       const timeDiff = nextFetch-Date.now();
       const delayBeforeFetch = Math.max(timeDiff,0);
