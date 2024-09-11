@@ -122,19 +122,28 @@ class HttpClient {
     _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
       const {randomDelay, fetchOptions} = options;
       
-      const minDateForNextFetch = 
-        this.lastFetchSchedule 
-        ? Math.max(this.lastFetchSchedule + this.minTimeoutPerRequest, Date.now())
-        : Date.now();
+      const padding = this.minTimeoutPerRequest + randomDelay;    
 
-      const nextFetch = this.lastFetchSchedule = minDateForNextFetch + randomDelay;
-      const timeDiff = nextFetch-Date.now();
-      const delayBeforeFetch = Math.max(timeDiff,0);
+
+      // first fetch = no delay
+      let queueTimeout = 0;
+      let delayBeforeFetch = 0;
+
+      // existing queue = calculate the delay
+      if (this.lastFetchSchedule) {
+
+        // if we get negative here, it's ok
+        queueTimeout = this.lastFetchSchedule - Date.now();
+        
+        delayBeforeFetch = queueTimeout + padding;
+      }     
+
+      this.lastFetchSchedule = Date.now() + delayBeforeFetch;
 
       this.logger?.info(`Fetching ${url} (delay: ${delayBeforeFetch})`);
 
       return (
-        delayBeforeFetch <= 0
+        delayBeforeFetch <= 0 // negative delay will also be done instantly
         ? this._fetch(url, fetchOptions) 
         : Bun.sleep(delayBeforeFetch).then(
             () => this._fetch(url, fetchOptions)
