@@ -45,7 +45,7 @@ class HttpClient {
 
     getWithCache(url: string): Promise<ResponseDataWithCache> {
         return this.cache.getItem(url).then(
-          (cache: any) => {
+          (cache: string | null) => {
             if (!cache) {
               return this.getNoCache(url).then((response) => ({response, fromCache: false}));
             }
