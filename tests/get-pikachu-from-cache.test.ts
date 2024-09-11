@@ -2,11 +2,11 @@ import { test, expect } from '@jest/globals'
 import HttpClient from '../index';
 
 test(
-    'get pikachu data',
+    'get pikachu data with cache',
     async () => {
         const client = new HttpClient(
             {
-                cache: new FakeCache(),
+                cache: new FakeCache(), // mock Cache
                 logger: console
             }
         );
