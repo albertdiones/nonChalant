@@ -121,21 +121,15 @@ class HttpClient {
     
     _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
       const {randomDelay, fetchOptions} = options;
-      
-      const padding = this.minTimeoutPerRequest + randomDelay;    
-
 
       // first fetch = no delay
-      let queueTimeout = 0;
-      let delayBeforeFetch = 0;
-
-      // existing queue = calculate the delay
+      let delayBeforeFetch = 0;   
       if (this.lastFetchSchedule) {
-
-        // if we get negative here, it's ok
-        queueTimeout = this.lastFetchSchedule - Date.now();
-        
-        delayBeforeFetch = queueTimeout + padding;
+        // existing queue = calculate the delay
+        delayBeforeFetch = 
+          (this.lastFetchSchedule - Date.now())
+          + this.minTimeoutPerRequest 
+          + randomDelay;
       }     
 
       this.lastFetchSchedule = Date.now() + delayBeforeFetch;
