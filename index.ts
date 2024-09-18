@@ -1,6 +1,7 @@
 import { LoggerInterface } from 'add_logger';
 import CacheViaRedis from 'cache-via-redis';
 import { noDelayScheduleManager, type AsyncTaskManagerInterface, type PaddedScheduleManager } from './scheduleManager';
+import { CacheViaNothing } from './tests/setup';
 
 export interface ResponseDataWithCache {
   response: {[key: string]: any},
@@ -18,6 +19,17 @@ interface CacheAdapterInterface {
       expirationSeconds: number
   ): void;
 }
+
+const bypassCacheClient = new HttpClient(
+  {
+    cache: new CacheViaNothing()
+  }
+);
+
+const cachedClient = new HttpClient(
+  {
+    cache: new CacheViaRedis()
+  });
 
 
 class HttpClient {
@@ -39,31 +51,34 @@ class HttpClient {
     }
 
 
-    getWithCache(url: string): Promise<ResponseDataWithCache> {
-        return this.cache.getItem(url).then(
-          (cache: string | null) => {
-            if (!cache) {
-              return this.getNoCache(url).then((response) => ({response, fromCache: false}));
-            }
-            else {
-              this.logger?.info("found from cache: " + url);
-              return Promise.resolve({response: JSON.parse(cache), fromCache: true});
-            }
+    get(url: string): Promise<ResponseDataWithCache> {
+      if (!this.cache) {
+        if (!this.currentFetches[url]) {
+          this.currentFetches[url] = this.get(url)
+            .finally(
+              () => {
+                delete this.currentFetches[url]; // Use delete to remove the entry
+              }
+            );
+        }
+        return this.currentFetches[url];
+      }
+      return this.cache.getItem(url).then(
+        (cache: string | null) => {
+          if (!cache) {
+            return null;
           }
-        );
+          else {
+            this.logger?.info("found from cache: " + url);
+            return Promise.resolve({response: JSON.parse(cache), fromCache: true});
+          }
+        }
+      );
         
     }
 
     getNoCache(url: string): Promise<object> {
-      if (!this.currentFetches[url]) {
-        this.currentFetches[url] = this.get(url)
-          .finally(
-            () => {
-              delete this.currentFetches[url]; // Use delete to remove the entry
-            }
-          );
-      }
-      return this.currentFetches[url];
+      
     }
 
     
