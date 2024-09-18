@@ -26,8 +26,6 @@ class HttpClient {
     maxRandomPreRequestTimeout: number = 0;
     minTimeoutPerRequest: number = 0;
     currentFetches: {[url: string]: Promise<any>} = {};
-    lastFetchSchedule: number | null;
-
     scheduleManager: PaddedScheduleManager;
 
     constructor(
@@ -50,8 +48,6 @@ class HttpClient {
             ?? 0;
 
         this.scheduleManager = options.scheduleManager ?? noDelayScheduleManager;
-
-        this.lastFetchSchedule = null;
     }
 
 
@@ -142,37 +138,7 @@ class HttpClient {
       }
 
       
-      return this._schedule(fetchTask,`fetch ${url}`);
-    }
-
-    _schedule(fetchTask: () => any, name?: string): Promise<any> {
-      const randomDelay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
-
-      // first fetch = no delay
-      let delayBeforeFetch = 0;   
-      if (this.lastFetchSchedule) {
-        // existing queue = calculate the delay
-        delayBeforeFetch = 
-          (this.lastFetchSchedule - Date.now())
-          + this.minTimeoutPerRequest 
-          + randomDelay;
-      }     
-
-      this.lastFetchSchedule = Date.now() + delayBeforeFetch;
-
-      this.logger?.info(`Scheduling task: ${name} (delay: ${delayBeforeFetch})`);
-
-      return (
-        delayBeforeFetch <= 0 // negative delay will also be done instantly
-        ? fetchTask()
-        : Bun.sleep(delayBeforeFetch).then(
-            () => fetchTask()
-        )
-      ).catch(
-        (e: Error) => {
-          this.logger?.warn(`Error occurred trying to access ${name} : ${e}`)
-        }
-      )
+      return this.scheduleManager.add(fetchTask,`fetch ${url}`);
     }
 
     _fetch(url: string, options?: FetchOptions | null) {
