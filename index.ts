@@ -35,7 +35,7 @@ class HttpClient {
     ) {
         this.cache = options.cache;
         this.logger = options?.logger ?? null;
-        this.scheduleManager = new PaddedScheduleManager(timeout, randomTimeout) ?? noDelayScheduleManager;
+        this.scheduleManager = options.scheduleManager ?? noDelayScheduleManager;
     }
 
 
