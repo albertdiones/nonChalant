@@ -56,7 +56,7 @@ class HttpClient {
 
     getNoCache(url: string): Promise<object> {
       if (!this.currentFetches[url]) {
-        this.currentFetches[url] = this.get(url)
+        this.currentFetches[url] = this.fetch(url, {method:'GET'})
           .finally(
             () => {
               delete this.currentFetches[url]; // Use delete to remove the entry
