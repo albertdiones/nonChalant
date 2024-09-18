@@ -56,7 +56,7 @@ class HttpClient {
 
     getNoCache(url: string): Promise<object> {
       if (!this.currentFetches[url]) {
-        this.currentFetches[url] = this._fetchWithDelay(url, {})
+        this.currentFetches[url] = this.get(url)
           .finally(
             () => {
               delete this.currentFetches[url]; // Use delete to remove the entry
@@ -99,23 +99,11 @@ class HttpClient {
       );
     }
 
+    
     async fetch(
-      url,
+      url: string,
       fetchOptions: FetchOptions
     ): Promise<any> {
-
-      return this._fetchWithDelay(
-        url, {
-          fetchOptions: fetchOptions ?? null
-        }
-      );
-    }
-  
-
-    
-    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null}) {
-      const {fetchOptions} = options;
-
 
       const fetchTask = () => {
         this.logger?.info(`Fetching ${url}`)
