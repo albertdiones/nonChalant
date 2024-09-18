@@ -135,6 +135,10 @@ class HttpClient {
       const fetchTask = () => this._fetch(url, fetchOptions);
 
       
+      return this._schedule(fetchTask);
+    }
+
+    _schedule(fetchTask: () => any): Promise<any> {
       const randomDelay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
       // first fetch = no delay
@@ -162,7 +166,7 @@ class HttpClient {
           this.logger?.warn(`Error occurred trying to access ${url} : ${e}`)
         }
       )
-    }   
+    }
 
     _fetch(url: string, options?: FetchOptions | null) {
       this.logger?.info("fetching(native): " + url);
