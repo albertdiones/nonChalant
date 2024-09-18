@@ -107,14 +107,14 @@ class HttpClient {
 
       const fetchTask = () => {
         this.logger?.info(`Fetching ${url}`)
-        return this._fetch(url, fetchOptions);
+        return this._executeFetch(url, fetchOptions);
       }
 
       
       return this.scheduleManager.add(fetchTask,`fetch ${url}`);
     }
 
-    _fetch(url: string, options?: FetchOptions | null) {
+    _executeFetch(url: string, options?: FetchOptions | null) {
       this.logger?.info("fetching(native): " + url);
       return fetch(url, options ?? {method: 'GET'}).then(
         (response) => {
