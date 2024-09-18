@@ -145,7 +145,7 @@ class HttpClient {
       return this._schedule(fetchTask,`fetch ${url}`);
     }
 
-    _schedule(fetchTask: () => any, name: string): Promise<any> {
+    _schedule(fetchTask: () => any, name?: string): Promise<any> {
       const randomDelay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
       // first fetch = no delay

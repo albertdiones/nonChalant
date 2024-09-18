@@ -13,7 +13,7 @@ export interface AsyncTaskManagerInterface {
     * 
     * 
     */
-  add(task: () => Promise<any>): Promise<any>;
+  add(task: () => Promise<any>, name?: string): Promise<any>;
 }
 
 /**
@@ -34,7 +34,8 @@ export class PaddedScheduleManager implements AsyncTaskManagerInterface {
     this.minTimeoutPerRequest = minTimeoutPerRequest;
     this.maxRandomPreRequestTimeout = maxRandomPreRequestTimeout;
   }
-  add(task: () => Promise<any>): Promise<any> {
+  
+  add(task: () => Promise<any>, name?: string): Promise<any> {
     throw new Error("Method not implemented.");
   }
 }
