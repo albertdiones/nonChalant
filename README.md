@@ -24,4 +24,6 @@ new HttpClient({
 Todos:
  * [x] support POST method
  * [x] support other http methods (PATCH,DELETE)
+ * [x] create schedule manager object, that decouples the scheduling aspect of the fetches
+ * [] maxRandomPreRequestTimeout jest tests
  * [] Create automated functional tests (using apis listed here?? https://github.com/public-apis/public-apis?tab=readme-ov-file#finance)
