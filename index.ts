@@ -31,8 +31,7 @@ class HttpClient {
       options:{
         cache: CacheAdapterInterface,
         logger?: LoggerInterface,
-        minTimeoutPerRequest?: number, 
-        maxRandomPreRequestTimeout?: number
+        scheduleManager: ScheduleManagerInterface
       }
     ) {
         this.cache = options.cache;
