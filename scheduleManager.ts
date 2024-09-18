@@ -1,16 +1,4 @@
 
-
-class AsyncTask {
-  constructor(
-    task: () => Promise<any>
-  ) {
-    this.task = task;
-  }
-  setName(name) {
-    this.name = name;
-  }
-}
-
 /**
  * 
  * 
@@ -25,7 +13,7 @@ export interface AsyncTaskManagerInterface {
     * 
     * 
     */
-  add(task: AsyncTask): Promise<any>;
+  add(task: () => Promise<any>): Promise<any>;
 }
 
 /**
