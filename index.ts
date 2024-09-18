@@ -107,9 +107,12 @@ class HttpClient {
       url,
       fetchOptions: FetchOptions
     ): Promise<any> {
-      const delay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
-      return this._fetchWithDelay(url, { fetchOptions: fetchOptions ?? null, randomDelay: delay });
+      return this._fetchWithDelay(
+        url, {
+          fetchOptions: fetchOptions ?? null
+        }
+      );
     }
 
     _getWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
@@ -125,8 +128,14 @@ class HttpClient {
     }   
 
     
-    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
-      const {randomDelay, fetchOptions} = options;
+    _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null}) {
+      const {fetchOptions} = options;
+
+
+      const fetchTask = () => this._fetch(url, fetchOptions);
+
+      
+      const randomDelay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
       // first fetch = no delay
       let delayBeforeFetch = 0;   
@@ -144,9 +153,9 @@ class HttpClient {
 
       return (
         delayBeforeFetch <= 0 // negative delay will also be done instantly
-        ? this._fetch(url, fetchOptions) 
+        ? fetchTask()
         : Bun.sleep(delayBeforeFetch).then(
-            () => this._fetch(url, fetchOptions)
+            () => fetchTask()
         )
       ).catch(
         (e: Error) => {
