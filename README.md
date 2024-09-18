@@ -8,6 +8,8 @@ for fetches that never throttles
 1. minTimeoutPerRequest - minimum delay for each requests initiated using the client
 2. maxRandomPreRequestTimeout - support for random time interval in between requests
 
+http client? ~ an object to help you fetch resources(json?) from apis or other http urls
+
 
 ```
 new HttpClient({
