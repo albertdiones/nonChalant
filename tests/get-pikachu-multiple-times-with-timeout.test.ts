@@ -1,18 +1,8 @@
 import { test, expect } from '@jest/globals'
 import HttpClient from '../index';
+import { CacheViaNothing } from './setup';
 
-export class CacheViaNothing {
-    async getItem(key: string): Promise<string | null> {
-        return null;
-    }
-  
-    setItem(
-        key: string, 
-        value: string,
-        expirationSeconds: number
-    ): void { 
-    }
-}
+
 
 test(
     'get pikachu data',
