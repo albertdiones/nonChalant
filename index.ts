@@ -71,9 +71,7 @@ class HttpClient {
     }
 
     getNoCache(url: string): Promise<object> {
-      const delay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
-
-      return this._getWithDelay(url, {randomDelay: delay});
+      return this._getWithDelay(url, {});
     }
 
     
@@ -121,7 +119,7 @@ class HttpClient {
       );
     }
 
-    _getWithDelay(url: string, options: { fetchOptions?: FetchOptions | null, randomDelay: number}) {
+    _getWithDelay(url: string, options: { fetchOptions?: FetchOptions | null}) {
       if (!this.currentFetches[url]) {
         this.currentFetches[url] = this._fetchWithDelay(url, options)
           .finally(
