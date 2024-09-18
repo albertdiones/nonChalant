@@ -32,8 +32,6 @@ class HttpClient {
       options:{
         cache: CacheAdapterInterface,
         logger?: LoggerInterface,
-        minTimeoutPerRequest?: number, 
-        maxRandomPreRequestTimeout?: number,
         scheduleManager?: PaddedScheduleManager
       }
     ) {
@@ -41,12 +39,10 @@ class HttpClient {
         this.logger = options?.logger ?? null; 
         
         this.maxRandomPreRequestTimeout = options.scheduleManager?.maxRandomPreRequestTimeout 
-          ?? options.maxRandomPreRequestTimeout 
           ?? 0;
-          
+
         this.minTimeoutPerRequest = 
           options.scheduleManager?.minTimeoutPerRequest
-            ?? options.minTimeoutPerRequest 
             ?? 0;
 
         this.lastFetchSchedule = null;
