@@ -132,13 +132,16 @@ class HttpClient {
       const {fetchOptions} = options;
 
 
-      const fetchTask = () => this._fetch(url, fetchOptions);
+      const fetchTask = () => {
+        this.logger?.info(`Fetching ${url}`)
+        return this._fetch(url, fetchOptions);
+      }
 
       
-      return this._schedule(fetchTask);
+      return this._schedule(fetchTask,`fetch ${url}`);
     }
 
-    _schedule(fetchTask: () => any): Promise<any> {
+    _schedule(fetchTask: () => any, name: string): Promise<any> {
       const randomDelay = this.maxRandomPreRequestTimeout > 0 ? Math.random()*this.maxRandomPreRequestTimeout : 0;
 
       // first fetch = no delay
@@ -153,7 +156,7 @@ class HttpClient {
 
       this.lastFetchSchedule = Date.now() + delayBeforeFetch;
 
-      this.logger?.info(`Fetching ${url} (delay: ${delayBeforeFetch})`);
+      this.logger?.info(`Scheduling task: ${name} (delay: ${delayBeforeFetch})`);
 
       return (
         delayBeforeFetch <= 0 // negative delay will also be done instantly
@@ -163,7 +166,7 @@ class HttpClient {
         )
       ).catch(
         (e: Error) => {
-          this.logger?.warn(`Error occurred trying to access ${url} : ${e}`)
+          this.logger?.warn(`Error occurred trying to access ${name} : ${e}`)
         }
       )
     }
