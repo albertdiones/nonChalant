@@ -23,8 +23,6 @@ interface CacheAdapterInterface {
 class HttpClient {
     logger: LoggerInterface | null;
     cache: CacheAdapterInterface;
-    maxRandomPreRequestTimeout: number = 0;
-    minTimeoutPerRequest: number = 0;
     currentFetches: {[url: string]: Promise<any>} = {};
     scheduleManager: PaddedScheduleManager;
 
@@ -36,17 +34,7 @@ class HttpClient {
       }
     ) {
         this.cache = options.cache;
-        this.logger = options?.logger ?? null; 
-
-
-        
-        this.maxRandomPreRequestTimeout = options.scheduleManager?.maxRandomPreRequestTimeout 
-          ?? 0;
-
-        this.minTimeoutPerRequest = 
-          options.scheduleManager?.minTimeoutPerRequest
-            ?? 0;
-
+        this.logger = options?.logger ?? null;
         this.scheduleManager = options.scheduleManager ?? noDelayScheduleManager;
     }
 
@@ -67,7 +55,15 @@ class HttpClient {
     }
 
     getNoCache(url: string): Promise<object> {
-      return this._getWithDelay(url, {});
+      if (!this.currentFetches[url]) {
+        this.currentFetches[url] = this._fetchWithDelay(url, {})
+          .finally(
+            () => {
+              delete this.currentFetches[url]; // Use delete to remove the entry
+            }
+          );
+      }
+      return this.currentFetches[url];
     }
 
     
@@ -114,18 +110,7 @@ class HttpClient {
         }
       );
     }
-
-    _getWithDelay(url: string, options: { fetchOptions?: FetchOptions | null}) {
-      if (!this.currentFetches[url]) {
-        this.currentFetches[url] = this._fetchWithDelay(url, options)
-          .finally(
-            () => {
-              delete this.currentFetches[url]; // Use delete to remove the entry
-            }
-          );
-      }
-      return this.currentFetches[url];
-    }   
+  
 
     
     _fetchWithDelay(url: string, options: { fetchOptions?: FetchOptions | null}) {
