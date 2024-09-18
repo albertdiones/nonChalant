@@ -18,24 +18,6 @@ interface CacheAdapterInterface {
   ): void;
 }
 
-/**
- * A task schedule manager, which enables management of asynchronous 
- * 
- * minTimeoutPerRequest - minimum delay for each task
- * maxRandomPreRequestTimeout - random time interval in before each task
- */
-interface ScheduleManager {
-  /*
-   * add(task)
-   * e.g. 
-   * add(() => fetch('http://google.com/api/blahblah')).then();
-   * 
-   * should there be a priority argument?
-   * 
-   */
-  add(task: () => Promise<any>, priority: number): Promise<any>;
-}
-
 
 class HttpClient {
     logger: LoggerInterface | null;
