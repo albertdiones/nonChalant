@@ -1,6 +1,7 @@
 import { test, expect } from '@jest/globals'
 import HttpClient from '../index';
 import { CacheViaNothing } from './setup';
+import { PaddedScheduleManager } from '../scheduleManager';
 
 
 
@@ -10,7 +11,7 @@ test(
         const client = new HttpClient(
             {
                 cache: new CacheViaNothing(),
-                minTimeoutPerRequest: 400,
+                scheduleManager: new PaddedScheduleManager(400,0),
                 logger: console
             }
         );

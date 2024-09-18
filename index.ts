@@ -1,5 +1,6 @@
 import { LoggerInterface } from 'add_logger';
 import CacheViaRedis from 'cache-via-redis';
+import type { AsyncTaskManagerInterface, PaddedScheduleManager } from './scheduleManager';
 
 export interface ResponseDataWithCache {
   response: {[key: string]: any},
@@ -32,13 +33,22 @@ class HttpClient {
         cache: CacheAdapterInterface,
         logger?: LoggerInterface,
         minTimeoutPerRequest?: number, 
-        maxRandomPreRequestTimeout?: number
+        maxRandomPreRequestTimeout?: number,
+        scheduleManager?: PaddedScheduleManager
       }
     ) {
         this.cache = options.cache;
-        this.logger = options?.logger ?? null;        
-        this.maxRandomPreRequestTimeout = options.maxRandomPreRequestTimeout ?? 0;
-        this.minTimeoutPerRequest = options.minTimeoutPerRequest ?? 0;
+        this.logger = options?.logger ?? null; 
+        
+        this.maxRandomPreRequestTimeout = options.scheduleManager?.maxRandomPreRequestTimeout 
+          ?? options.maxRandomPreRequestTimeout 
+          ?? 0;
+          
+        this.minTimeoutPerRequest = 
+          options.scheduleManager?.minTimeoutPerRequest
+            ?? options.minTimeoutPerRequest 
+            ?? 0;
+
         this.lastFetchSchedule = null;
     }
 
