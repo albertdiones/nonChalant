@@ -68,13 +68,15 @@ class HttpClient {
 
     
     
-
+    /**
+     * use getWithCache() or getNoCache() above instead
     get(url: string, fetchOptions?: FetchOptions ): Promise<object> {
       return this.fetch(
         url,
         {...fetchOptions, method: 'GET'}
       );
     }
+     */
 
     post(url: string, fetchOptions?: FetchOptions ): Promise<object> {
       return this.fetch(
