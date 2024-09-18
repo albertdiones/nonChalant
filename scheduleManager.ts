@@ -38,3 +38,6 @@ export class PaddedScheduleManager implements AsyncTaskManagerInterface {
     throw new Error("Method not implemented.");
   }
 }
+
+
+export const noDelayScheduleManager = new PaddedScheduleManager(0,0);

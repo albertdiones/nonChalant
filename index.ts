@@ -1,6 +1,6 @@
 import { LoggerInterface } from 'add_logger';
 import CacheViaRedis from 'cache-via-redis';
-import type { AsyncTaskManagerInterface, PaddedScheduleManager } from './scheduleManager';
+import { noDelayScheduleManager, type AsyncTaskManagerInterface, type PaddedScheduleManager } from './scheduleManager';
 
 export interface ResponseDataWithCache {
   response: {[key: string]: any},
@@ -28,6 +28,8 @@ class HttpClient {
     currentFetches: {[url: string]: Promise<any>} = {};
     lastFetchSchedule: number | null;
 
+    scheduleManager: PaddedScheduleManager;
+
     constructor(
       options:{
         cache: CacheAdapterInterface,
@@ -37,6 +39,8 @@ class HttpClient {
     ) {
         this.cache = options.cache;
         this.logger = options?.logger ?? null; 
+
+
         
         this.maxRandomPreRequestTimeout = options.scheduleManager?.maxRandomPreRequestTimeout 
           ?? 0;
@@ -44,6 +48,8 @@ class HttpClient {
         this.minTimeoutPerRequest = 
           options.scheduleManager?.minTimeoutPerRequest
             ?? 0;
+
+        this.scheduleManager = options.scheduleManager ?? noDelayScheduleManager;
 
         this.lastFetchSchedule = null;
     }
