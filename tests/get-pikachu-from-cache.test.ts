@@ -1,12 +1,28 @@
 import { test, expect } from '@jest/globals'
 import HttpClient from '../index';
+import { FakeCache } from './setup';
+
+
+const cachedResponse = `{
+    "types": [
+      {
+        "slot": 1,
+        "type": {
+          "name": "water",
+          "url": "https://pokeapi.co/api/v2/type/13/"
+        }
+      }
+    ],
+    "weight": 60
+}`
+
 
 test(
     'get pikachu data with cache',
     async () => {
         const client = new HttpClient(
             {
-                cache: new FakeCache(), // mock Cache
+                cache: new FakeCache(cachedResponse), // mock Cache
                 logger: console
             }
         );
@@ -34,29 +50,3 @@ test(
         ).toBe('water');
     }
 )
-
-class FakeCache {
-    async getItem(key: string): Promise<string | null> {
-        return Promise.resolve(cachedResponse);
-    }
-  
-    setItem(
-        key: string, 
-        value: string,
-        expirationSeconds: number
-    ): void { 
-    }
-}
-
-const cachedResponse = `{
-    "types": [
-      {
-        "slot": 1,
-        "type": {
-          "name": "water",
-          "url": "https://pokeapi.co/api/v2/type/13/"
-        }
-      }
-    ],
-    "weight": 60
-}`
