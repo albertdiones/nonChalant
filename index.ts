@@ -1,4 +1,4 @@
-import { LoggerInterface } from 'add_logger';
+import { type LoggerInterface } from 'add_logger';
 import CacheViaRedis from 'cache-via-redis';
 import { noDelayScheduleManager, type AsyncTaskManagerInterface, type PaddedScheduleManager } from './scheduleManager';
 
@@ -24,13 +24,13 @@ class HttpClient {
     logger: LoggerInterface | null;
     cache: CacheAdapterInterface;
     currentFetches: {[url: string]: Promise<any>} = {};
-    scheduleManager: PaddedScheduleManager;
+    scheduleManager: AsyncTaskManagerInterface;
 
     constructor(
       options:{
         cache: CacheAdapterInterface,
         logger?: LoggerInterface,
-        scheduleManager?: PaddedScheduleManager
+        scheduleManager?: AsyncTaskManagerInterface
       }
     ) {
         this.cache = options.cache;
