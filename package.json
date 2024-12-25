@@ -10,7 +10,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "add_logger": "^0.0.23",
+    "add_logger": "^0.0",
     "cache-via-redis": "^0.0"
   }
 }
