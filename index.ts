@@ -7,6 +7,7 @@ export interface ResponseDataWithCache {
   fromCache: boolean
 }
 
+// deprecated, use RequestInit
 interface FetchOptions {method: string, headers?:object, body?: string}
 
 interface CacheAdapterInterface {
@@ -78,7 +79,7 @@ class HttpClient {
     }
      */
 
-    post(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+    post(url: string, fetchOptions?: RequestInit ): Promise<object> {
       return this.fetch(
         url,
         {...fetchOptions, method: 'POST'}
@@ -87,14 +88,14 @@ class HttpClient {
 
     
 
-    patch(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+    patch(url: string, fetchOptions?: RequestInit ): Promise<object> {
       return this.fetch(
         url,
         {...fetchOptions, method: 'PATCH'}
       );
     }
 
-    delete(url: string, fetchOptions?: FetchOptions ): Promise<object> {
+    delete(url: string, fetchOptions?: RequestInit ): Promise<object> {
       return this.fetch(
         url,
         {...fetchOptions, method: 'DELETE'}
@@ -104,7 +105,7 @@ class HttpClient {
     
     async fetch(
       url: string,
-      fetchOptions: FetchOptions
+      fetchOptions: RequestInit
     ): Promise<any> {
 
       const fetchTask = () => {
@@ -116,7 +117,7 @@ class HttpClient {
       return this.scheduleManager.add(fetchTask,`fetch ${url}`);
     }
 
-    _executeFetch(url: string, options?: FetchOptions | null) {
+    _executeFetch(url: string, options?: RequestInit | null) {
       this.logger?.info("fetching(native): " + url);
       return fetch(url, options ?? {method: 'GET'}).then(
         (response) => {
